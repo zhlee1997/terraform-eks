@@ -82,7 +82,7 @@ module "eks_cluster" {
       min_size       = 1
       max_size       = 2
       desired_size   = 1
-      instance_types = ["t3.medium"]
+      instance_types = ["t3.micro"]
     }
   }
 }
