@@ -1,3 +1,4 @@
+# VPC and Networking
 resource "aws_vpc" "vpc_inventory_prod" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -59,6 +60,7 @@ resource "aws_route_table_association" "rta_subnet_3_inventory_prod" {
   route_table_id = aws_route_table.rt_inventory_prod.id
 }
 
+# EKS Cluster
 module "eks_cluster" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 20.0"
@@ -79,10 +81,25 @@ module "eks_cluster" {
 
   eks_managed_node_groups = {
     green = {
-      min_size       = 1
-      max_size       = 2
-      desired_size   = 1
+      min_size       = 2
+      max_size       = 3
+      desired_size   = 2
       instance_types = ["t3.micro"]
+
+      # Enable spot instances for cost savings
+      capacity_type = "SPOT"
+    }
+
+    cluster_addons = {
+      coredns            = {}
+      kube-proxy         = {}
+      vpc-cni            = {}
+      aws-ebs-csi-driver = {}
+    }
+
+    tags = {
+      Environment = "production"
+      Project     = "inventory"
     }
   }
 }
